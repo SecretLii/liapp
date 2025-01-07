@@ -1,0 +1,31 @@
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Game {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  image       String?
+  guideCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  guides      Guide[]
+}
+
+model Guide {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  game        Game     @relation(fields: [gameId], references: [id])
+  gameId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+} 
