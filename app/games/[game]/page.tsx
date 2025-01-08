@@ -1,5 +1,4 @@
 import GameHeader from '@/components/game-header'
-import GuideForm from '@/components/guide-form'
 import GuideList from '@/components/guide-list'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'

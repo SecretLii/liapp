@@ -1,5 +1,3 @@
-import { prisma } from '@/lib/prisma'
-
 export default async function CreateGuide() {
   return (
     <div className="container mx-auto py-8 px-4">

@@ -3,8 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
+import { Game, Guide } from "@prisma/client"
 
-export function GamesList({ games }: { games: any[] }) {
+export function GamesList({ games }: { games: (Game & { guides: Guide[] })[] }) {
   return (
     <div className="space-y-6">
       {games.map((game) => (

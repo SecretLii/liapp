@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
-type Game = Awaited<ReturnType<typeof prisma.game.findFirst>>
-
 export default async function GamesShowcase() {
   const games = await prisma.game.findMany()
 
@@ -11,7 +9,7 @@ export default async function GamesShowcase() {
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12">Featured Games</h2>
         <div className="grid md:grid-cols-3 gap-8">
-          {games.map((game: Game) => (
+          {games.map((game) => (
             <Link 
               key={game.slug} 
               href={`/games/${game.slug}`} 

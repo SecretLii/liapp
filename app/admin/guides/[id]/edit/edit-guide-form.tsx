@@ -33,7 +33,7 @@ export function EditGuideForm({ guide }: EditGuideFormProps) {
           description: result.error || "Failed to update guide",
         })
       }
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         description: "Something went wrong",
