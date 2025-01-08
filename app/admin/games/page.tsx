@@ -3,6 +3,10 @@ import { GamesList } from '@/components/admin/games-list'
 import { Suspense } from 'react'
 import type { Game, Guide } from '@prisma/client'
 
+// This makes the page dynamic and prevents build-time database queries
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 type GameWithGuides = Game & {
   guides: Guide[]
 }
