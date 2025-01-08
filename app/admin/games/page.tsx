@@ -9,14 +9,19 @@ type GameWithGuides = Game & {
 
 async function getGames(): Promise<GameWithGuides[]> {
   try {
-    return await prisma.game.findMany({
+    const games = await prisma.game.findMany({
       include: {
         guides: true,
       },
     })
+    return games
   } catch (error) {
-    console.error('Database connection failed:', error)
-    throw new Error('Failed to connect to the database')
+    console.error('Database error:', error)
+    throw new Error(
+      error instanceof Error 
+        ? error.message 
+        : 'Failed to connect to the database'
+    )
   }
 }
 
