@@ -12,8 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Game } from "@prisma/client"
 
-export function NewGuideForm({ games }: { games: any[] }) {
+export function NewGuideForm({ games }: { games: Game[] }) {
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {

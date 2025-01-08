@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 type GameHeaderProps = {
   game: {
     title: string
@@ -12,10 +14,11 @@ export default function GameHeader({ game }: GameHeaderProps) {
     <div className="mb-8">
       {game.image && (
         <div className="relative h-48 md:h-64 mb-6">
-          <img
+          <Image
             src={game.image}
             alt={game.title}
-            className="object-cover w-full h-full rounded-lg"
+            fill
+            className="object-cover rounded-lg"
           />
         </div>
       )}

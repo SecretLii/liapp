@@ -17,7 +17,7 @@ export async function createGame(formData: FormData) {
 
     revalidatePath('/games')
     return { success: true, game }
-  } catch (error) {
+  } catch {
     return { success: false, error: 'Failed to create game' }
   }
 }
@@ -40,7 +40,7 @@ export async function createGuide(formData: FormData) {
 
     revalidatePath('/games')
     return { success: true, guide }
-  } catch (error) {
+  } catch {
     return { success: false, error: 'Failed to create guide' }
   }
 } 

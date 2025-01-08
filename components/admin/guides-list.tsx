@@ -6,8 +6,9 @@ import Link from "next/link"
 import { deleteGuide } from "@/app/actions/guide"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Guide, Game } from "@prisma/client"
 
-export function GuidesList({ guides }: { guides: any[] }) {
+export function GuidesList({ guides }: { guides: (Guide & { game: Game })[] }) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const router = useRouter()
 
@@ -31,7 +32,7 @@ export function GuidesList({ guides }: { guides: any[] }) {
           <div className="flex justify-between items-start">
             <div>
               <h3 className="text-xl font-semibold">{guide.title}</h3>
-              <p className="text-muted-foreground mt-2">{guide.description}</p>
+              <p className="text-muted-foreground mt-2">{guide.content}</p>
               <p className="text-sm mt-2">Game: {guide.game.title}</p>
             </div>
             <div className="space-x-2">
