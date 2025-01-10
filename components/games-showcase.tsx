@@ -1,26 +1,37 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
-type Game = Awaited<ReturnType<typeof prisma.game.findFirst>>
+interface Game {
+  id: string
+  title: string
+  description: string
+  image: string | null
+  guideCount: number
+}
 
-export default async function GamesShowcase() {
-  const games = await prisma.game.findMany()
+interface GamesShowcaseProps {
+  games: Game[]
+}
 
+export default function GamesShowcase({ games }: GamesShowcaseProps) {
   return (
-    <section id="games" className="py-24">
+    <section className="py-16 bg-muted/50">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12">Featured Games</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {games.map((game: Game) => (
-            <Link 
-              key={game.slug} 
-              href={`/games/${game.slug}`} 
-              className="p-6 bg-card rounded-lg shadow-lg hover:opacity-80 transition-opacity"
-            >
-              <h3 className="text-2xl font-semibold mb-3">{game.title}</h3>
-              <p className="text-muted-foreground mb-4">{game.description}</p>
-              <p className="text-sm font-medium text-primary">{game.guideCount}+ guides</p>
-            </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {games.map((game) => (
+            <div key={game.id} className="bg-card rounded-lg shadow-lg overflow-hidden">
+              {game.image && (
+                <img src={game.image} alt={game.title} className="w-full h-48 object-cover" />
+              )}
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2">{game.title}</h3>
+                <p className="text-muted-foreground mb-4">{game.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">{game.guideCount} guides</span>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>

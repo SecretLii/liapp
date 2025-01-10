@@ -12,8 +12,20 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { cn } from "@/lib/utils"
+import { MobileNav } from "./mobile-nav"
 
-export default function Nav() {
+interface Game {
+  id: string
+  title: string
+  slug: string
+  description: string
+}
+
+interface NavProps {
+  games: Game[]
+}
+
+export default function Nav({ games }: NavProps) {
   return (
     <div className="border-b">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -21,17 +33,18 @@ export default function Nav() {
           Guides for Gamers
         </Link>
 
-        <NavigationMenu>
+        {/* Desktop Navigation */}
+        <NavigationMenu className="relative hidden lg:block">
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuTrigger>Games</NavigationMenuTrigger>
               <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2">
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                   <li className="row-span-3">
                     <NavigationMenuLink asChild>
                       <Link
                         className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                        href="/"
+                        href="/games"
                       >
                         <div className="mb-2 mt-4 text-lg font-medium">
                           Featured Games
@@ -42,15 +55,17 @@ export default function Nav() {
                       </Link>
                     </NavigationMenuLink>
                   </li>
-                  <ListItem href="/games/world-of-warcraft" title="World of Warcraft">
-                    Master Azeroth with our detailed guides
-                  </ListItem>
-                  <ListItem href="/games/path-of-exile" title="Path of Exile">
-                    Navigate complex builds and mechanics
-                  </ListItem>
-                  <ListItem href="/games/league-of-legends" title="League of Legends">
-                    Dominate the lanes with pro strategies
-                  </ListItem>
+                  <div className="col-span-1 max-h-[300px] overflow-y-auto">
+                    {games.map((game) => (
+                      <ListItem 
+                        key={game.id}
+                        href={`/games/${game.slug}`} 
+                        title={game.title}
+                      >
+                        {game.description}
+                      </ListItem>
+                    ))}
+                  </div>
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
@@ -58,7 +73,7 @@ export default function Nav() {
               <NavigationMenuTrigger>Guides</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2">
-                  <ListItem href="/create" title="Create Guide">
+                  <ListItem href="/admin/guides/create" title="Create Guide">
                     Share your knowledge with the community
                   </ListItem>
                   <ListItem href="/guides" title="Browse Guides">
@@ -76,6 +91,9 @@ export default function Nav() {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
+
+        {/* Mobile Navigation */}
+        <MobileNav games={games} />
       </div>
     </div>
   )

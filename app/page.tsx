@@ -1,18 +1,19 @@
-import Nav from '@/components/nav'
+import { prisma } from '@/lib/prisma'
 import Hero from '@/components/hero'
-import Features from '@/components/features'
 import GamesShowcase from '@/components/games-showcase'
-import FAQ from '@/components/faq'
-import Footer from '@/components/footer'
 
-export default function Home() {
+export default async function Home() {
+  const games = await prisma.game.findMany({
+    orderBy: {
+      guideCount: 'desc'
+    },
+    take: 6
+  })
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div>
       <Hero />
-      <Features />
-      <GamesShowcase />
-      <FAQ />
-      <Footer />
+      <GamesShowcase games={games} />
     </div>
   )
 }

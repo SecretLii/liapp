@@ -2,15 +2,14 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { EditGuideForm } from './edit-guide-form'
 
+type Props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
 
-interface EditGuideProps {
-  params: {
-    id: string
-  }
-}
-
-export default async function EditGuide({ params }: EditGuideProps) {
-  const { id } = params
+const Page = async ({ params }: Props) => {
+  const { id } = await params
   
   if (!id) {
     notFound()
@@ -37,4 +36,6 @@ export default async function EditGuide({ params }: EditGuideProps) {
       </div>
     </div>
   )
-} 
+}
+
+export default Page 

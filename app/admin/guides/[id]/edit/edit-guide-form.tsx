@@ -1,25 +1,36 @@
 'use client'
 
 import { updateGuide } from '@/app/actions/guide'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
-import { Guide, Game } from '@prisma/client'
+import { useState } from 'react'
+
+interface Guide {
+  id: string
+  title: string
+  content: string
+  gameId: string
+  game: {
+    id: string
+    title: string
+  }
+}
 
 interface EditGuideFormProps {
-  guide: Guide & {
-    game: Game
-  }
+  guide: Guide
 }
 
 export function EditGuideForm({ guide }: EditGuideFormProps) {
   const { toast } = useToast()
   const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+    setIsSubmitting(true)
     
     try {
+      const formData = new FormData(e.currentTarget)
       const result = await updateGuide(guide.id, formData)
       
       if (result.success) {
@@ -33,11 +44,13 @@ export function EditGuideForm({ guide }: EditGuideFormProps) {
           description: result.error || "Failed to update guide",
         })
       }
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         description: "Something went wrong",
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -75,9 +88,10 @@ export function EditGuideForm({ guide }: EditGuideFormProps) {
         <input type="hidden" name="gameId" value={guide.gameId} />
         <button
           type="submit"
-          className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
+          disabled={isSubmitting}
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50"
         >
-          Update Guide
+          {isSubmitting ? 'Updating...' : 'Update Guide'}
         </button>
       </div>
     </form>
