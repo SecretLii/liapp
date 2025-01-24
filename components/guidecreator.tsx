@@ -4,84 +4,135 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import SearchTerms from './searchterms'
+import { useToast } from "@/hooks/use-toast"
 import GuidePreview from './guidepreview'
-// import SearchTerms from './SearchTerms'
-// import GuidePreview from './GuidePreview'
+import { createGuide } from '@/app/actions/game'
+import { Card } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-export default function GuideCreator() {
+interface Game {
+  id: string
+  title: string
+}
+
+export default function GuideCreator({ games }: { games: Game[] }) {
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
   const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [searchTerms, setSearchTerms] = useState<string[]>([])
+  const [content, setContent] = useState('')
+  const [selectedGameId, setSelectedGameId] = useState('')
   const [guide, setGuide] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Simulate AI-generated search terms
-    const generatedTerms = [
-      `${title} basics`,
-      `${title} advanced strategies`,
-      `${title} tips and tricks`,
-      `${title} walkthrough`,
-      `${title} best practices`
-    ]
-    setSearchTerms(generatedTerms)
+    
+    if (!selectedGameId) {
+      toast({
+        variant: "destructive",
+        description: "Please select a game",
+      })
+      return
+    }
+    
+    setLoading(true)
 
-    // Simulate guide generation (in a real app, this would call the backend)
-    setTimeout(() => {
-      setGuide(`# ${title}
+    try {
+      const formData = new FormData()
+      formData.append('gameId', selectedGameId)
+      formData.append('title', title)
+      formData.append('content', content)
 
-## Introduction
-${description}
+      console.log('Submitting guide with data:', {
+        gameId: selectedGameId,
+        title,
+        content
+      })
 
-## Basic Strategies
-1. Start with the tutorial
-2. Complete daily quests
-3. Join a guild or clan
+      const result = await createGuide(formData)
 
-## Advanced Techniques
-1. Optimize your gear
-2. Master combos and skill rotations
-3. Study the meta and adapt your playstyle
-
-## Tips and Tricks
-- Always keep your inventory organized
-- Use voice chat for better team coordination
-- Take regular breaks to avoid burnout
-
-## Conclusion
-Practice these strategies consistently, and you'll see significant improvement in your gameplay. Good luck, and have fun!
-
-Sources:
-1. GameFAQs.com
-2. Reddit.com/r/gaming
-3. IGN.com`)
-    }, 2000)
+      if (result.success) {
+        setGuide(content)
+        toast({
+          description: "Guide created successfully",
+        })
+        // Reset form
+        setTitle('')
+        setContent('')
+        setSelectedGameId('')
+      } else {
+        console.error('Failed to create guide:', result.error)
+        toast({
+          variant: "destructive",
+          description: result.error || "Failed to create guide",
+        })
+      }
+    } catch (error) {
+      console.error('Error creating guide:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create guide'
+      toast({
+        variant: "destructive",
+        description: errorMessage,
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="space-y-8">
+    <Card className="max-w-2xl mx-auto p-6">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          type="text"
-          placeholder="Guide Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <Textarea
-          placeholder="Brief description of the guide"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-        <Button type="submit">Generate Guide</Button>
+        <div>
+          <label htmlFor="game" className="block text-sm font-medium mb-1">Select Game</label>
+          <Select value={selectedGameId} onValueChange={setSelectedGameId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a game" />
+            </SelectTrigger>
+            <SelectContent>
+              {games.map((game) => (
+                <SelectItem key={game.id} value={game.id}>
+                  {game.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label htmlFor="title" className="block text-sm font-medium mb-1">Guide Title</label>
+          <Input 
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required 
+            placeholder="Enter guide title" 
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="content" className="block text-sm font-medium mb-1">Guide Content</label>
+          <Textarea 
+            id="content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required 
+            placeholder="Write your guide content here..." 
+            className="min-h-[200px]"
+          />
+        </div>
+
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? 'Creating...' : 'Create Guide'}
+        </Button>
       </form>
 
-      {searchTerms.length > 0 && <SearchTerms terms={searchTerms} />}
-      
       {guide && <GuidePreview content={guide} />}
-    </div>
+    </Card>
   )
 }
 

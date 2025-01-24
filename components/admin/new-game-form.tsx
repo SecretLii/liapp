@@ -20,7 +20,12 @@ export function NewGameForm() {
 
     try {
       const formData = new FormData(e.currentTarget)
-      const result = await createGame(formData)
+      const gameData = {
+        title: formData.get('title') as string,
+        description: formData.get('description') as string,
+        image: formData.get('image') as string || undefined
+      }
+      const result = await createGame(gameData)
 
       if (result.success) {
         toast({
