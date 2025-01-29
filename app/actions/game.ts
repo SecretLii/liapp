@@ -9,17 +9,19 @@ interface CreateGameInput {
   image?: string
 }
 
-export async function createGame(formData: CreateGameInput) {
-  console.log('Starting createGame with formData:', formData)
+export async function createGame(formData: FormData) {
+  const title = formData.get('title') as string
+  const description = formData.get('description') as string
+  const image = formData.get('image') as string
 
-  if (!formData || !formData.title || !formData.description) {
-    console.log('Missing required fields:', { formData })
+  if (!title || !description) {
+    console.log('Missing required fields:', { title, description })
     return { success: false, error: 'Missing required fields' }
   }
 
   try {
     // Generate slug from title
-    const slug = formData.title
+    const slug = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
@@ -27,10 +29,10 @@ export async function createGame(formData: CreateGameInput) {
     console.log('Generated slug:', slug)
 
     const gameData = {
-      title: formData.title,
+      title,
       slug,
-      description: formData.description,
-      image: formData.image && formData.image.startsWith('http') ? formData.image : null,
+      description,
+      image: image && image.startsWith('http') ? image : null,
       guideCount: 0
     }
     console.log('Attempting to create game with data:', gameData)
@@ -121,5 +123,58 @@ export async function createGuide(formData: FormData) {
       stack: error instanceof Error ? error.stack : 'No stack trace'
     })
     return { success: false, error: 'Failed to create guide' }
+  }
+}
+
+interface UpdateGameInput {
+  title: string
+  description: string
+  image?: string | null
+}
+
+export async function updateGame(gameId: string, data: UpdateGameInput) {
+  try {
+    const { title, description, image } = data
+
+    if (!title || !description) {
+      return { success: false, error: 'Missing required fields' }
+    }
+
+    // Generate slug from title
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+
+    // First check if game exists
+    const existingGame = await prisma.game.findUnique({
+      where: { id: gameId }
+    })
+
+    if (!existingGame) {
+      return { success: false, error: 'Game not found' }
+    }
+
+    // Update the game
+    const game = await prisma.game.update({
+      where: { id: gameId },
+      data: {
+        title,
+        slug,
+        description,
+        image: image || null
+      }
+    })
+
+    revalidatePath('/games')
+    revalidatePath('/admin/games')
+    revalidatePath(`/games/${slug}`)
+    
+    return { success: true, game }
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('Unique constraint')) {
+      return { success: false, error: 'A game with this name already exists' }
+    }
+    return { success: false, error: 'Failed to update game' }
   }
 } 

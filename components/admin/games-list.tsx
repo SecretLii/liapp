@@ -17,7 +17,7 @@ export function GamesList({ games }: { games: any[] }) {
             </div>
             <div className="space-x-2">
               <Button variant="outline" asChild>
-                <Link href={`/admin/games/${game.id}/edit`}>Edit</Link>
+                <Link href={`/admin/games/edit/${game.id}`}>Edit</Link>
               </Button>
               <Button variant="destructive">Delete</Button>
             </div>

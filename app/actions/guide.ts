@@ -35,12 +35,16 @@ export async function deleteGuide(guideId: string) {
 }
 
 export async function updateGuide(guideId: string, formData: FormData) {
+  console.log("Updating guide:", guideId);
+  console.log("Received data:", Object.fromEntries(formData.entries()));
+
   try {
     const title = formData.get('title') as string
     const content = formData.get('content') as string
     const gameId = formData.get('gameId') as string
 
     if (!title || !content || !gameId) {
+      console.log("Missing required fields");
       return { success: false, error: 'Missing required fields' }
     }
 
@@ -54,9 +58,10 @@ export async function updateGuide(guideId: string, formData: FormData) {
     })
 
     revalidatePath('/admin/guides')
+    console.log("Guide updated successfully");
     return { success: true, guide, message: 'Guide updated successfully' }
   } catch (error) {
     console.error('Error updating guide:', error)
     return { success: false, error: 'Failed to update guide. Please try again.' }
   }
-} 
+}
