@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 
 interface Game {
@@ -22,7 +23,14 @@ export default function GamesShowcase({ games }: GamesShowcaseProps) {
           {games.map((game) => (
             <div key={game.id} className="bg-card rounded-lg shadow-lg overflow-hidden">
               {game.image && (
-                <img src={game.image} alt={game.title} className="w-full h-48 object-cover" />
+                <div className="relative h-48">
+                  <Image 
+                    src={game.image} 
+                    alt={game.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               )}
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2">{game.title}</h3>

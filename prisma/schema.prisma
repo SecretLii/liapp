@@ -10,10 +10,10 @@ datasource db {
 
 model Game {
   id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  description String
-  image       String?
+  title       String   @db.VarChar(255)
+  slug        String   @unique @db.VarChar(255)
+  description String   @db.Text
+  image       String?  @db.VarChar(500)
   guideCount  Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -22,7 +22,7 @@ model Game {
 
 model Guide {
   id        String   @id @default(cuid())
-  title     String
+  title     String   @db.VarChar(255)
   content   String   @db.Text
   game      Game     @relation(fields: [gameId], references: [id])
   gameId    String

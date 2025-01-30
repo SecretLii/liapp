@@ -3,12 +3,6 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 
-interface CreateGameInput {
-  title: string
-  description: string
-  image?: string
-}
-
 export async function createGame(formData: FormData) {
   const title = formData.get('title') as string
   const description = formData.get('description') as string

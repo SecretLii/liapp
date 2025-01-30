@@ -4,7 +4,15 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
 
-export function GamesList({ games }: { games: any[] }) {
+interface Game {
+  id: string
+  title: string
+  description: string
+  image?: string | null
+  guides: Array<{ id: string }>
+}
+
+export function GamesList({ games }: { games: Game[] }) {
   return (
     <div className="space-y-6">
       {games.map((game) => (
