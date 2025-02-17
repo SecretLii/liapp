@@ -1,5 +1,6 @@
-import Footer from '@/components/footer'
-import './globals.css'
+import React from 'react';
+import Footer from '@/components/footer';
+import './globals.css';
 import { Toaster } from '@/components/ui/toaster'
 import NavWrapper from '@/components/nav-wrapper'
 
@@ -23,4 +24,3 @@ export default function RootLayout({
     </html>
   )
 }
-

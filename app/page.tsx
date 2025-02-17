@@ -1,3 +1,4 @@
+import React from 'react';
 import { prisma } from '@/lib/prisma'
 import Hero from '@/components/hero'
 import GamesShowcase from '@/components/games-showcase'
