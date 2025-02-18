@@ -1,6 +1,6 @@
 import React from 'react';
 import Footer from '@/components/footer';
-import './globals.css';
+import '@/app/globals.css';
 import { Toaster } from '@/components/ui/toaster'
 import NavWrapper from '@/components/nav-wrapper'
 
