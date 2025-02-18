@@ -6,15 +6,9 @@ interface PageProps {
   params: { id: string }
 }
 
-async function generateParams(params: PageProps['params']) {
-  'use server'
-  return params
-}
-
 export default async function EditGame({ params }: PageProps) {
-  const { id } = await generateParams(params)
   const game = await prisma.game.findUnique({
-    where: { id }
+    where: { id: params.id }
   })
 
   if (!game) {
