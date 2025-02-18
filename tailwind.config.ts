@@ -9,6 +9,15 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            keyframes: {
+                'spin-slow': {
+                  '0%': { transform: 'rotate(0deg)' },
+                  '100%': { transform: 'rotate(360deg)' }
+                }
+            },
+            animation: {
+                'spin-slow': 'spin-slow 2s linear infinite',
+            },
             colors: {
                 background: 'hsl(var(--background))',
                 foreground: 'hsl(var(--foreground))',

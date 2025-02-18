@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/navigation-menu"
 import { cn } from "@/lib/utils"
 import { MobileNav } from "./mobile-nav"
+import { usePathname } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Sword, Scroll, Gamepad2 } from 'lucide-react'
 
 interface Game {
   id: string
@@ -23,6 +26,81 @@ interface Game {
 
 interface NavProps {
   games: Game[]
+}
+
+export function MainNav() {
+  const pathname = usePathname()
+
+  const routes = [
+    {
+      href: '/',
+      label: 'Home',
+    },
+    {
+      href: '/games',
+      label: 'Games',
+      icon: ({ className, ...props }) => (
+        <Gamepad2 
+          className={`${className} group-hover:animate-spin-slow text-emerald-500`}
+          strokeWidth={2}
+          {...props}
+        />
+      ),
+    },
+    {
+      href: '/guides',
+      label: 'Guides',
+      icon: ({ className, ...props }) => (
+        <Scroll 
+          className={`${className} group-hover:animate-bounce text-indigo-500`}
+          strokeWidth={2}
+          {...props}
+        />
+      ),
+    },
+    {
+      href: '/ai-assistant',
+      label: 'Axiom',
+      icon: ({ className, ...props }) => (
+        <Sword 
+          className={`${className} group-hover:rotate-45 text-destructive transition-transform duration-300`}
+          strokeWidth={2.5}
+          {...props}
+        />
+      ),
+    },
+  ]
+
+  return (
+    <nav className="border-b bg-background">
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center">
+          <div className="flex items-center space-x-4">
+            {routes.map((route) => (
+              <Link
+                key={route.href}
+                href={route.href}
+                className={cn(
+                  'text-sm font-medium transition-colors hover:text-primary',
+                  pathname === route.href
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
+                )}
+              >
+                <Button
+                  variant={pathname === route.href ? "default" : "ghost"}
+                  className="flex items-center gap-2 group"
+                >
+                  {route.icon && <route.icon className="h-4 w-4" />}
+                  {route.label}
+                </Button>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </nav>
+  )
 }
 
 export default function Nav({ games }: NavProps) {

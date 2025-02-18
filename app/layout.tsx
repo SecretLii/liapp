@@ -1,8 +1,8 @@
 import React from 'react';
 import Footer from '@/components/footer';
+import { MainNav } from '@/components/nav';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster'
-import NavWrapper from '@/components/nav-wrapper'
 
 export default function RootLayout({
   children,
@@ -13,7 +13,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div className="min-h-screen flex flex-col">
-          <NavWrapper />
+          <MainNav />
           <main className="flex-grow">
             {children}
           </main>
