@@ -1,30 +1,97 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
-// Initialize Gemini API with a free API key
-const genAI = new GoogleGenerativeAI('AIzaSyDJC5a7TpvyPvHVYB6ErDXmgSxFqOkHW_k');
-
-async function searchInternet(query: string) {
+async function searchDatabase(query: string) {
   try {
-    const response = await fetch(`https://api.tavily.com/search`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': process.env.TAVILY_API_KEY || '',
+    // Search for guides
+    const guides = await prisma.guide.findMany({
+      where: {
+        OR: [
+          { title: { contains: query } },
+          { content: { contains: query } },
+          { game: { title: { contains: query } } }
+        ]
       },
-      body: JSON.stringify({
-        query,
-        search_depth: 'advanced',
-        include_domains: ['ign.com', 'gamespot.com', 'pcgamer.com', 'eurogamer.net', 'polygon.com', 'kotaku.com'],
-        max_results: 5
-      }),
+      include: {
+        game: {
+          select: {
+            title: true,
+            slug: true
+          }
+        }
+      },
+      take: 5,
+      orderBy: {
+        createdAt: 'desc'
+      }
     })
 
-    const data = await response.json()
-    return data.results || []
+    // Search for games
+    const games = await prisma.game.findMany({
+      where: {
+        OR: [
+          { title: { contains: query } },
+          { description: { contains: query } }
+        ]
+      },
+      take: 3,
+      orderBy: {
+        guideCount: 'desc'
+      }
+    })
+
+    return { guides, games }
   } catch (error) {
-    console.error('Search error:', error)
-    return []
+    console.error('Database search error:', error)
+    return { guides: [], games: [] }
+  }
+}
+
+function generateResponse(query: string, results: { guides: any[], games: any[] }) {
+  const { guides, games } = results
+
+  if (guides.length === 0 && games.length === 0) {
+    return {
+      message: `I couldn't find any guides or games matching "${query}". Try searching for a specific game title or topic!`,
+      results: []
+    }
+  }
+
+  let response = `Here's what I found about "${query}":\n\n`
+
+  if (games.length > 0) {
+    response += "🎮 Related Games:\n"
+    games.forEach(game => {
+      response += `- ${game.title}: ${game.description}\n`
+    })
+    response += "\n"
+  }
+
+  if (guides.length > 0) {
+    response += "📚 Available Guides:\n"
+    guides.forEach(guide => {
+      response += `- ${guide.title} (for ${guide.game.title})\n`
+    })
+  }
+
+  const searchResults = [
+    ...guides.map(guide => ({
+      title: guide.title,
+      type: 'Guide',
+      game: guide.game.title,
+      url: `/guides/${guide.id}`
+    })),
+    ...games.map(game => ({
+      title: game.title,
+      type: 'Game',
+      description: game.description,
+      url: `/games/${game.slug}`
+    }))
+  ]
+
+  return {
+    message: response,
+    results: searchResults
   }
 }
 
@@ -32,61 +99,29 @@ export async function POST(req: Request) {
   try {
     const { message } = await req.json()
 
-    // First, search for relevant information
-    const searchResults = await searchInternet(message)
-    const searchContext = searchResults.length > 0
-      ? "Based on recent information from gaming websites:\n" + 
-        searchResults.map((result: any) => `- ${result.title}: ${result.snippet}`).join('\n')
-      : ""
+    if (!message) {
+      return NextResponse.json(
+        { error: 'Message is required' },
+        { status: 400 }
+      )
+    }
 
-    // Initialize the model
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
-    const prompt = `You are Axiom, an advanced AI gaming companion with deep knowledge of video games, gaming strategies, and content creation.
-
-Your capabilities include:
-1. Creating detailed game guides and walkthroughs
-2. Providing strategic advice and tips for any game
-3. Explaining game mechanics and systems
-4. Suggesting optimal character builds and loadouts
-5. Offering speedrunning strategies
-6. Recommending games based on player preferences
-7. Analyzing meta trends and competitive strategies
-8. Helping with content creation for gaming channels/streams
-
-Guidelines:
-- Provide specific, actionable advice rather than general statements
-- Use clear, concise language with gaming terminology when appropriate
-- Include examples and specific scenarios in your explanations
-- When discussing strategies, explain the reasoning behind them
-- If you don't know something, be honest and suggest alternative resources
-- Stay up-to-date with gaming trends and meta strategies
-- Be enthusiastic and engaging while maintaining professionalism
-
-Remember: You're not just an AI - you're Axiom, a trusted gaming companion focused on helping players improve and enjoy their gaming experience.
-
-${searchContext}
-
-User Question: ${message}
-
-Please provide a helpful response as Axiom.`
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    // Search the database
+    const searchResults = await searchDatabase(message)
+    
+    // Generate a response based on search results
+    const { message: responseText, results } = generateResponse(message, searchResults)
 
     return NextResponse.json({
-      message: text,
-      sources: searchResults.map((result: any) => ({
-        title: result.title,
-        url: result.url
-      }))
+      message: responseText,
+      results
     })
+
   } catch (error: any) {
-    console.error('AI Chat Error:', error)
+    console.error('Chat Error:', error)
     return NextResponse.json(
       { 
-        error: error?.message || 'Failed to get AI response',
+        error: error?.message || 'Failed to get response',
         details: process.env.NODE_ENV === 'development' ? error : undefined
       },
       { status: 500 }
