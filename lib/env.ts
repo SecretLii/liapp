@@ -1,4 +1,5 @@
 const requiredServerEnvs = [
+  'OPENAI_API_KEY',
   'TAVILY_API_KEY',
   'DATABASE_URL'
 ] as const

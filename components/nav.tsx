@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils"
 import { MobileNav } from "./mobile-nav"
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Sword, Scroll, Gamepad2 } from 'lucide-react'
+import { Sword, Scroll, Gamepad2, BookOpenCheck } from 'lucide-react'
 
 interface Game {
   id: string
@@ -53,6 +53,17 @@ export function MainNav() {
       icon: ({ className, ...props }) => (
         <Scroll 
           className={`${className} group-hover:animate-bounce text-indigo-500`}
+          strokeWidth={2}
+          {...props}
+        />
+      ),
+    },
+    {
+      href: '/generate-guide',
+      label: 'AI Guide Generator',
+      icon: ({ className, ...props }) => (
+        <BookOpenCheck 
+          className={`${className} group-hover:animate-[flip_1s_ease-in-out] text-yellow-500`}
           strokeWidth={2}
           {...props}
         />

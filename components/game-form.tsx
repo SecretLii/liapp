@@ -2,36 +2,74 @@
 
 import { createGame } from '@/app/actions/game'
 import { useState } from 'react'
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/hooks/use-toast"
+import { useRouter } from 'next/navigation'
+import { Gamepad2 } from 'lucide-react'
 
 export default function GameForm() {
-  const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
+  const router = useRouter()
 
   async function handleSubmit(formData: FormData) {
-    const result = await createGame(formData)
-    if (result.success) {
-      setMessage('Game created successfully!')
-      // Reset the form
-      const form = document.getElementById('gameForm') as HTMLFormElement
-      form.reset()
-    } else {
-      setMessage('Failed to create game')
+    setLoading(true)
+    try {
+      const result = await createGame(formData)
+      
+      if (result.success) {
+        toast({
+          title: "Success!",
+          description: "Game created successfully!",
+        })
+        // Reset the form
+        const form = document.getElementById('gameForm') as HTMLFormElement
+        form.reset()
+        // Refresh the games list
+        router.refresh()
+        // Redirect to games list
+        router.push('/games')
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error || "Failed to create game",
+        })
+      }
+    } catch (error) {
+      console.error('Error creating game:', error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Something went wrong",
+      })
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6">Add New Game</h2>
+    <Card className="max-w-2xl mx-auto p-6">
+      <div className="flex items-center gap-2 mb-6">
+        <Gamepad2 className="h-6 w-6 text-emerald-500" />
+        <h2 className="text-2xl font-bold">Add New Game</h2>
+      </div>
+
       <form id="gameForm" action={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="title" className="block text-sm font-medium mb-1">
-            Title
+            Game Title
           </label>
-          <input
+          <Input
             type="text"
             id="title"
             name="title"
+            placeholder="e.g., Elden Ring"
             required
-            className="w-full p-2 border rounded"
+            disabled={loading}
           />
         </div>
         
@@ -39,11 +77,12 @@ export default function GameForm() {
           <label htmlFor="description" className="block text-sm font-medium mb-1">
             Description
           </label>
-          <textarea
+          <Textarea
             id="description"
             name="description"
+            placeholder="Brief description of the game..."
             required
-            className="w-full p-2 border rounded"
+            disabled={loading}
             rows={4}
           />
         </div>
@@ -52,28 +91,27 @@ export default function GameForm() {
           <label htmlFor="image" className="block text-sm font-medium mb-1">
             Image URL
           </label>
-          <input
+          <Input
             type="url"
             id="image"
             name="image"
+            placeholder="https://example.com/game-image.jpg"
             required
-            className="w-full p-2 border rounded"
+            disabled={loading}
           />
+          <p className="text-xs text-muted-foreground mt-1">
+            Provide a URL to the game's cover image or promotional artwork
+          </p>
         </div>
 
-        <button
+        <Button
           type="submit"
-          className="bg-primary text-white px-4 py-2 rounded hover:opacity-90"
+          className="w-full bg-emerald-500 hover:bg-emerald-600"
+          disabled={loading}
         >
-          Add Game
-        </button>
-
-        {message && (
-          <p className={`mt-4 ${message.includes('Failed') ? 'text-red-500' : 'text-green-500'}`}>
-            {message}
-          </p>
-        )}
+          {loading ? 'Creating...' : 'Add Game'}
+        </Button>
       </form>
-    </div>
+    </Card>
   )
 } 

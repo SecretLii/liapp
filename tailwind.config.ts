@@ -13,10 +13,15 @@ const config: Config = {
                 'spin-slow': {
                   '0%': { transform: 'rotate(0deg)' },
                   '100%': { transform: 'rotate(360deg)' }
+                },
+                'flip': {
+                  '0%': { transform: 'rotateY(0deg)' },
+                  '100%': { transform: 'rotateY(360deg)' }
                 }
             },
             animation: {
                 'spin-slow': 'spin-slow 2s linear infinite',
+                'flip': 'flip 1s ease-in-out'
             },
             colors: {
                 background: 'hsl(var(--background))',
