@@ -41,7 +41,7 @@ export function MainNav() {
       label: 'Games',
       icon: ({ className, ...props }) => (
         <Gamepad2 
-          className={`${className} group-hover:animate-game-pulse text-emerald-500`}
+          className={`${className} group-hover:animate-spin-slow text-emerald-500`}
           strokeWidth={2}
           {...props}
         />
@@ -52,7 +52,7 @@ export function MainNav() {
       label: 'Guides',
       icon: ({ className, ...props }) => (
         <Scroll 
-          className={`${className} group-hover:animate-scroll-float text-indigo-500`}
+          className={`${className} group-hover:animate-bounce text-indigo-500`}
           strokeWidth={2}
           {...props}
         />
@@ -62,13 +62,11 @@ export function MainNav() {
       href: '/generate-guide',
       label: 'AI Guide Generator',
       icon: ({ className, ...props }) => (
-        <div className="relative">
-          <BookOpenCheck 
-            className={`${className} text-yellow-500 group-hover:animate-ai-scan`}
-            strokeWidth={2}
-            {...props}
-          />
-        </div>
+        <BookOpenCheck 
+          className={`${className} group-hover:animate-[flip_1s_ease-in-out] text-yellow-500`}
+          strokeWidth={2}
+          {...props}
+        />
       ),
     },
     {
@@ -76,7 +74,7 @@ export function MainNav() {
       label: 'Axiom',
       icon: ({ className, ...props }) => (
         <Sword 
-          className={`${className} group-hover:animate-sword-slash text-destructive`}
+          className={`${className} group-hover:rotate-45 text-destructive transition-transform duration-300`}
           strokeWidth={2.5}
           {...props}
         />
