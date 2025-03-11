@@ -36,8 +36,11 @@ export async function createGame(formData: FormData) {
     })
 
     console.log('Game created successfully:', game)
+    // Revalidate all paths that display guide counts
     revalidatePath('/games')
     revalidatePath('/admin/games')
+    revalidatePath('/')  // For homepage showcase
+    revalidatePath('/guides')  // For guides listing
     return { success: true, game }
   } catch (error: unknown) {
     console.error('Error creating game:', error)
@@ -60,8 +63,11 @@ export async function deleteGame(gameId: string) {
       where: { id: gameId }
     })
 
-    revalidatePath('/admin/games')
+    // Revalidate all paths that display guide counts
     revalidatePath('/games')
+    revalidatePath('/admin/games')
+    revalidatePath('/')  // For homepage showcase
+    revalidatePath('/guides')  // For guides listing
     return { success: true }
   } catch {
     return { success: false, error: 'Failed to delete game' }
@@ -73,8 +79,6 @@ export async function createGuide(formData: FormData) {
     const gameId = formData.get('gameId') as string
     const title = formData.get('title') as string
     const content = formData.get('content') as string
-
-    console.log('Creating guide with data:', { gameId, title, content })
 
     if (!gameId || !title || !content) {
       console.error('Missing required fields:', { gameId, title, content })
@@ -90,6 +94,7 @@ export async function createGuide(formData: FormData) {
       return { success: false, error: 'Game not found' }
     }
 
+    // Create the guide first
     const guide = await prisma.guide.create({
       data: {
         title,
@@ -98,24 +103,27 @@ export async function createGuide(formData: FormData) {
       },
     })
 
-    console.log('Guide created successfully:', guide)
-
-    // Update guide count
+    // Then update the game's guide count
     await prisma.game.update({
       where: { id: gameId },
-      data: { guideCount: { increment: 1 } },
+      data: { 
+        guideCount: {
+          increment: 1
+        }
+      },
     })
 
+    // Make sure to revalidate all necessary paths
     revalidatePath('/games')
     revalidatePath(`/games/${game.slug}`)
+    revalidatePath('/admin/games')
+    revalidatePath('/admin/guides')
+    revalidatePath('/')
+    revalidatePath('/guides')
+
     return { success: true, guide }
   } catch (error: unknown) {
     console.error('Guide creation error:', error)
-    console.error('Error details:', {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : 'No stack trace'
-    })
     return { success: false, error: 'Failed to create guide' }
   }
 }
@@ -160,9 +168,12 @@ export async function updateGame(gameId: string, data: UpdateGameInput) {
       }
     })
 
+    // Revalidate all paths that display guide counts
     revalidatePath('/games')
     revalidatePath('/admin/games')
     revalidatePath(`/games/${slug}`)
+    revalidatePath('/')  // For homepage showcase
+    revalidatePath('/guides')  // For guides listing
     
     return { success: true, game }
   } catch (error) {

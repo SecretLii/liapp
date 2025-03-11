@@ -28,6 +28,11 @@ interface NavProps {
   games: Game[]
 }
 
+interface IconProps {
+  className?: string;
+  [key: string]: any;
+}
+
 export function MainNav() {
   const pathname = usePathname()
 
@@ -39,7 +44,7 @@ export function MainNav() {
     {
       href: '/games',
       label: 'Games',
-      icon: ({ className, ...props }) => (
+      icon: ({ className, ...props }: IconProps) => (
         <Gamepad2 
           className={`${className} group-hover:animate-game-pulse text-emerald-500`}
           strokeWidth={2}
@@ -50,7 +55,7 @@ export function MainNav() {
     {
       href: '/guides',
       label: 'Guides',
-      icon: ({ className, ...props }) => (
+      icon: ({ className, ...props }: IconProps) => (
         <Scroll 
           className={`${className} group-hover:animate-scroll-float text-indigo-500`}
           strokeWidth={2}
@@ -61,7 +66,7 @@ export function MainNav() {
     {
       href: '/generate-guide',
       label: 'AI Guide Generator',
-      icon: ({ className, ...props }) => (
+      icon: ({ className, ...props }: IconProps) => (
         <div className="relative">
           <BookOpenCheck 
             className={`${className} text-yellow-500 group-hover:animate-ai-scan`}
@@ -74,7 +79,7 @@ export function MainNav() {
     {
       href: '/ai-assistant',
       label: 'Axiom',
-      icon: ({ className, ...props }) => (
+      icon: ({ className, ...props }: IconProps) => (
         <Sword 
           className={`${className} group-hover:animate-sword-slash text-destructive`}
           strokeWidth={2.5}
@@ -87,7 +92,7 @@ export function MainNav() {
   return (
     <nav className="border-b bg-background">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center">
+        <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-4">
             {routes.map((route) => (
               <Link
@@ -109,6 +114,24 @@ export function MainNav() {
                 </Button>
               </Link>
             ))}
+          </div>
+          <div>
+            <Link
+              href="/admin"
+              className={cn(
+                'text-sm font-medium transition-colors hover:text-primary',
+                pathname === '/admin'
+                  ? 'text-primary'
+                  : 'text-muted-foreground'
+              )}
+            >
+              <Button
+                variant={pathname === '/admin' ? "default" : "ghost"}
+                className="flex items-center gap-2"
+              >
+                Admin
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
