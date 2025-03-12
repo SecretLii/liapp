@@ -15,7 +15,19 @@ import { cn } from "@/lib/utils"
 import { MobileNav } from "./mobile-nav"
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Sword, Scroll, Gamepad2, BookOpenCheck } from 'lucide-react'
+import { Sword, Scroll, Gamepad2, BookOpenCheck, LogIn, UserPlus } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface Game {
   id: string
@@ -40,10 +52,12 @@ export function MainNav() {
     {
       href: '/',
       label: 'Home',
+      tooltip: 'Go to homepage'
     },
     {
       href: '/games',
       label: 'Games',
+      tooltip: 'Browse all games',
       icon: ({ className, ...props }: IconProps) => (
         <Gamepad2 
           className={`${className} group-hover:animate-game-pulse text-emerald-500`}
@@ -55,6 +69,7 @@ export function MainNav() {
     {
       href: '/guides',
       label: 'Guides',
+      tooltip: 'Browse all guides',
       icon: ({ className, ...props }: IconProps) => (
         <Scroll 
           className={`${className} group-hover:animate-scroll-float text-indigo-500`}
@@ -64,21 +79,9 @@ export function MainNav() {
       ),
     },
     {
-      href: '/generate-guide',
-      label: 'AI Guide Generator',
-      icon: ({ className, ...props }: IconProps) => (
-        <div className="relative">
-          <BookOpenCheck 
-            className={`${className} text-yellow-500 group-hover:animate-ai-scan`}
-            strokeWidth={2}
-            {...props}
-          />
-        </div>
-      ),
-    },
-    {
       href: '/ai-assistant',
       label: 'Axiom',
+      tooltip: 'Chat with AI assistant',
       icon: ({ className, ...props }: IconProps) => (
         <Sword 
           className={`${className} group-hover:animate-sword-slash text-destructive`}
@@ -94,44 +97,96 @@ export function MainNav() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-4">
-            {routes.map((route) => (
-              <Link
-                key={route.href}
-                href={route.href}
-                className={cn(
-                  'text-sm font-medium transition-colors hover:text-primary',
-                  pathname === route.href
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                )}
-              >
-                <Button
-                  variant={pathname === route.href ? "default" : "ghost"}
-                  className="flex items-center gap-2 group"
-                >
-                  {route.icon && <route.icon className="h-4 w-4" />}
-                  {route.label}
-                </Button>
-              </Link>
-            ))}
+            <TooltipProvider>
+              {routes.map((route) => (
+                <Tooltip key={route.href}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={route.href}
+                      className={cn(
+                        'text-sm font-medium transition-colors hover:text-primary',
+                        pathname === route.href
+                          ? 'text-primary'
+                          : 'text-muted-foreground'
+                      )}
+                    >
+                      <Button
+                        variant={pathname === route.href ? "default" : "ghost"}
+                        className="flex items-center gap-2 group"
+                      >
+                        {route.icon && <route.icon className="h-4 w-4" />}
+                        {route.label}
+                      </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{route.tooltip}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </TooltipProvider>
           </div>
-          <div>
-            <Link
-              href="/admin"
-              className={cn(
-                'text-sm font-medium transition-colors hover:text-primary',
-                pathname === '/admin'
-                  ? 'text-primary'
-                  : 'text-muted-foreground'
-              )}
-            >
-              <Button
-                variant={pathname === '/admin' ? "default" : "ghost"}
-                className="flex items-center gap-2"
-              >
-                Admin
-              </Button>
-            </Link>
+
+          <div className="flex items-center space-x-2">
+            {/* Guest buttons */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      <LogIn className="h-4 w-4" />
+                      <span>Login</span>
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Sign in to your account</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href="/signup">
+                    <Button size="sm" className="gap-2">
+                      <UserPlus className="h-4 w-4" />
+                      <span>Sign Up</span>
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Create a new account</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* Admin link */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/admin"
+                    className={cn(
+                      'text-sm font-medium transition-colors hover:text-primary',
+                      pathname === '/admin'
+                        ? 'text-primary'
+                        : 'text-muted-foreground'
+                    )}
+                  >
+                    <Button
+                      variant={pathname === '/admin' ? "default" : "ghost"}
+                      size="sm"
+                    >
+                      Admin
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Access admin dashboard</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </div>

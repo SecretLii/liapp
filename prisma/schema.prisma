@@ -40,4 +40,4 @@ model Guide {
   updatedAt DateTime @updatedAt
 
   @@index([gameId])
-} 
+}
